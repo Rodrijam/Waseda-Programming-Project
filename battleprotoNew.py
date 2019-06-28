@@ -11,7 +11,6 @@ BLUE = (0,0,255)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 
-#ship1Img = pygame.image.load('ship1.png')
 placeLocation = (0,0)
 
 def game_setup(screenWidth = 1200, screenHeight = 675):
@@ -58,8 +57,11 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
 def game_start(screenDisp):
     #Game Loop
     while True:
+        
         #Need to modify ship object to have its own head/tail/body properties
 
+        #Test image depiction for ships, needs ability to place ships or
+        #drag them from a try onto the battlefield
         ship1Head = ShipPart("sprites/shipHL")
         ship1Tail = ShipPart("sprites/shipHR")
 
