@@ -29,7 +29,8 @@ clock = pygame.time.Clock()
 def game_setup(screenWidth = 1200, screenHeight = 675):
 
     #Display Setup
-    screenDisp = pygame.display.set_mode((screenWidth,screenHeight), pygame.RESIZABLE)
+    #screenDisp = pygame.display.set_mode((screenWidth,screenHeight), pygame.RESIZABLE)
+    screenDisp = pygame.display.set_mode((screenWidth,screenHeight))
     pygame.display.set_caption("Basic Battleship")
 
 
@@ -72,8 +73,8 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     for i in range (10):
         rowSet = []
         for j in range(10):
-            print(f"Making Col {j+1}")
-            newTile = Tile(cellWidth + (i*innerCellWidth),cellHeight + (j*innerCellHeight),i+1,j+1)
+            #print(f"Making Col {j+1}")
+            newTile = GameBoardTile(cellWidth + (i*innerCellWidth),cellHeight + (j*innerCellHeight),j+1,i+1)
             rowSet.append(newTile)
 
           #Axis Labels
@@ -97,7 +98,7 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     for i in gameBoard:
         for j in i:
             pygame.draw.rect(screenDisp, RED, (j.getX(), j.getY(), innerCellWidth, innerCellHeight), 1)
-            print (j)
+            #print (j)
 
     #Image Check
     imageSetPoint = (round(cellWidth)+innerCellWidth*10, round(cellHeight)+innerCellHeight*10)
@@ -145,12 +146,6 @@ def game_start(screenDisp):
                 yTile = int((mouseClick[1] - cellHeight) / innerCellHeight)
                 try:
                     clickedTile = gameBoard[xTile][yTile]
-                    #imageSetPoint = ())
-                    #pygame.draw.circle(screenDisp, RED, (imageSetPoint), 10, 1)
-                    print(mouseClick[0])
-                    print(mouseClick[1])
-                    print(xTile)
-                    print(yTile)
                     print(clickedTile)
                     if ( not clickedTile.getHit()):
                         if (clickedTile.hasShip()):

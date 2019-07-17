@@ -6,15 +6,31 @@ from shipClass import *
     Ship locations, etc.
 '''
 
-class GameBoardSpace:
+class GameBoardTile:
 
-    # maybe a bit over-engineered
-    def __init__(self):
-        self.ship = False #boolean for if there is a ship piece
-        self.hit = False #boolean for if this space has already been hit
-        self.open = True #boolean for checking if this space is occupied by a ship
+    def __init__(self, xCoord, yCoord, row, column):
+        self.x = xCoord
+        self.y = yCoord
+        self.row = row      #row the tile in in
+        self.col = column   #column the tile is in
+        self.ship = False   #boolean for if there is a ship piece
+        self.hit = False    #boolean for if this space has already been hit
         self.shipReference = None
-        # states: the space is empty:
+
+    def __str__(self):
+        return f"X:{self.x} Y:{self.y} Row:{self.row} Column:{self.col}"
+
+    def getX(self):
+        return self.x
+
+    def getY(self):
+        return self.y
+
+    def getRow(self):
+        return self.row
+
+    def getCol(self):
+        return self.col
 
     def setShipReference(self, ship):
         if self.shipReference == None:
@@ -25,7 +41,6 @@ class GameBoardSpace:
         # return true/false for error checking in game board class
         if not self.ship:
             self.ship = True
-            self.open = False
             # put ship drawing code here
             return True
         return False
