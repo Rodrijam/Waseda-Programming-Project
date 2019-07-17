@@ -128,7 +128,7 @@ def game_start(screenDisp):
         #ship1.place(placeLocation, screenDisp)
         """
 
-
+        turnCounter = 0
         
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -148,7 +148,8 @@ def game_start(screenDisp):
                         pygame.draw.circle(screenDisp, RED, (mouseClick[0], mouseClick[1]), 1)
                     elif:
                         pygame.draw.rect(screenDisp, RED, (mouseClick[0], mouseClick[1], 10,10), 1)
-                clickedTile.setHit(true)
+                    clickedTile.setHit(true)
+                    turnCounter++
                 
             #if event.type ==
             #    pygame.display.toggle_fullscreen() 
