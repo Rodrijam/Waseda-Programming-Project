@@ -9,7 +9,7 @@ from shipClass import *
 class GameBoardTile:
 
     def __init__(self, xCoord, yCoord, row, column):
-        self.debug_mode = False
+        self.debug_mode = True
         self.x = xCoord
         self.y = yCoord
         self.row = row      #row the tile in in
@@ -66,11 +66,8 @@ class GameBoardTile:
 
 class GameBoard:
 
-    def __init__(self, mainboard, maindisplay, height=10, width=10):
+    def __init__(self, mainboard, maindisplay):
         # initially 10 x 10 grid, based on grid drawn in 'battleprotoNew.py'
-        self.height = height
-        self.width = width
-        #self.board = [[GameBoardTile() for h in range(height)] for w in range(width)]
         self.board = mainboard
         self.display = maindisplay
 
@@ -120,7 +117,7 @@ class GameBoard:
             if not self.isSpaceFree(next[0],next[1]):
                 return None
             indicies.append(next)
-        print(indicies)
+
         return indicies
 
     def checkShipSpacesRight(self, init, size):
