@@ -11,6 +11,7 @@ class GameBoardSpace:
     def __init__(self):
         self.ship = False #boolean for if there is a ship piece
         self.hit = False #boolean for if this space has already been hit
+        self.open = True #boolean for checking if this space is occupied by a ship
         self.shipReference = None
         # states: the space is empty:
 
