@@ -2,7 +2,13 @@ import pygame
 from pygame.locals import *
 from shipClass import *
 
+#Initializes Pygame and Pygame's Font
 pygame.init()
+pygame.font.init()
+setFont = pygame.font.SysFont('Comic Sans MS', 100)
+
+#Used for determining user's screen size
+vidInfo = pygame.display.Info()
 
 #Color & Image Definitions
 RED = (255,0,0)
@@ -10,6 +16,7 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
+GREY = (192,192,192)
 
 placeLocation = (0,0)
 
