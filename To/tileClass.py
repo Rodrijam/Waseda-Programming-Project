@@ -1,12 +1,15 @@
+from shipClass import*
 
 class Tile():
 
-    def __init__(self, xCoord, yCoord, row, column):
+    def __init__(self, xCoord, yCoord, row, column, ship):
         #X,Y coordinates for top left of tile.
         self.x = xCoord
         self.y = yCoord
         self.row = row
         self.col = column
+        self.hit = False
+        self.ship = ship
 
     def __str__(self):
         return f"X:{self.x} Y:{self.y} Row:{self.row} Column:{self.col}"
@@ -16,10 +19,22 @@ class Tile():
 
     def getY(self):
         return self.y
-
     
     def getRow(self):
         return self.row
 
     def getCol(self):
         return self.col
+
+    def getHit(self):
+        return self.hit
+    
+    def hit(self):
+        self.ship.hit()
+    
+    def hasShip(self):
+        return !(self.ship is None)
+    
+    def getShip(self):
+        return self.ship
+    
