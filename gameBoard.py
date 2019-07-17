@@ -9,6 +9,7 @@ from shipClass import *
 class GameBoardTile:
 
     def __init__(self, xCoord, yCoord, row, column):
+        self.debug_mode = False
         self.x = xCoord
         self.y = yCoord
         self.row = row      #row the tile in in
@@ -18,7 +19,7 @@ class GameBoardTile:
         self.shipReference = None
 
     def __str__(self):
-        return f"X:{self.x} Y:{self.y} Row:{self.row} Column:{self.col}"
+        return f"X:{self.x} Y:{self.y} Column:{self.col} Row:{self.row} "
 
     def getX(self):
         return self.x
@@ -36,15 +37,24 @@ class GameBoardTile:
         if self.shipReference == None:
             self.shipReference = ship
 
+    def getImg(self,h,sType):
+        shipImg = pygame.image.load(f'sprites/ship{sType}.jpg')
+        #shipImg = pygame.image.load(f'sprites/ship.jpg')
+        shipImg = pygame.transform.scale(shipImg, (round((4*h*1.3)/50), round((4*h)/50)))
+        return shipImg
 
-    def placeShipPiece(self):
-        # return true/false for error checking in game board class
+    def placeShipPiece(self, ship, display, tile):
         if not self.ship:
             self.ship = True
-            # put ship drawing code here
+            if self.debug_mode:
+                tile = tile[0]+1, tile[1]+1
+                print(f"Placing {ship} on tile {tile}")
+                w, h = pygame.display.get_surface().get_size()
+                cell = (round(w/10)+((tile[0]-1)*(round((4*h*1.3)/50))), round(h/10)+((tile[1]-1)*(round((4*h)/50))))
+                display.blit(self.getImg(h,ship.getSize()), cell)
             return True
         return False
-
+        
     '''
         draws a hit mark on the game screen?
     '''
@@ -56,73 +66,50 @@ class GameBoardTile:
 
 class GameBoard:
 
-    # 2 3 3 4 5
-
-    def __init__(self, height=10, width=10):
+    def __init__(self, mainboard, maindisplay, height=10, width=10):
         # initially 10 x 10 grid, based on grid drawn in 'battleprotoNew.py'
         self.height = height
         self.width = width
-        self.board = [[GameBoardSpace() for h in range(height)] for w in range(width)]
+        #self.board = [[GameBoardTile() for h in range(height)] for w in range(width)]
+        self.board = mainboard
+        self.display = maindisplay
 
         # creates inverted list of all free spaces. Useful for the ai.
         # touples
-        self.freePool = [(i,j) for i in range(height) for j in range(width)]
+        self.freePool = [(i,j) for i in range(10) for j in range(10)]
 
         shipSizes = [2,3,3,4,5]
-        successfulPlace = False
         for ship in shipSizes:
-
+            successfulPlace = False
+            print(f"Size: {ship}")
             while not successfulPlace:
                 init = self.getRandomFreeSpace()
                 direction = random.randrange(0, 3)
 
                 if direction == 0:
-                    indicies = self.checkShipSpacesRight(init, ship)
-                    if indicies != None:
-                        # create ship part
-                        newShip = Ship()
-                        for index in indicies:
-                            space = self.freePool[index]
-                            self.removeSpace(space[0], space[1])
-                            self.board[space[0]][space[1]].setShipReference(newShip)
-                            self.board[space[0]][space[1]].placeShipPiece(newShip)
-                        successfulPlace = True
-
-                if direction == 1:
-                    indicies = self.checkShipSpacesDown(init, ship)
-                    if indicies != None:
-                        # create ship part
-                        newShip = Ship()
-                        for index in indicies:
-                            space = self.freePool[index]
-                            self.removeSpace(space[0], space[1])
-                            self.board[space[0]][space[1]].setShipReference(newShip)
-                            self.board[space[0]][space[1]].placeShipPiece(newShip)
-                        successfulPlace = True
-
-                if direction == 2:
                     indicies = self.checkShipSpacesLeft(init, ship)
-                    if indicies != None:
-                        # create ship part
-                        newShip = Ship()
-                        for index in indicies:
-                            space = self.freePool[index]
-                            self.removeSpace(space[0], space[1])
-                            self.board[space[0]][space[1]].setShipReference(newShip)
-                            self.board[space[0]][space[1]].placeShipPiece(newShip)
-                        successfulPlace = True
-
-                if direction == 3:
+                    successfulPlace = self.setShips(indicies, ship)
+                elif direction == 1:
+                    indicies = self.checkShipSpacesRight(init, ship)
+                    successfulPlace = self.setShips(indicies, ship)
+                elif direction == 2:
                     indicies = self.checkShipSpacesUp(init, ship)
-                    if indicies != None:
-                        # create ship part
-                        newShip = Ship()
-                        for index in indicies:
-                            space = self.freePool[index]
-                            self.removeSpace(space[0], space[1])
-                            self.board[space[0]][space[1]].setShipReference(newShip)
-                            self.board[space[0]][space[1]].placeShipPiece(newShip)
-                        successfulPlace = True
+                    successfulPlace = self.setShips(indicies, ship)
+                elif direction == 3:
+                    indicies = self.checkShipSpacesDown(init, ship)
+                    successfulPlace = self.setShips(indicies, ship)
+                else:
+                    print("Direction Error")
+
+    def setShips(self,indicies,ship):
+        if indicies != None:
+            # create ship part
+            newShip = Ship(ship)
+            for tile in indicies:
+                self.removeSpace(tile)
+                self.board[tile[0]][tile[1]].setShipReference(newShip)
+                self.board[tile[0]][tile[1]].placeShipPiece(newShip,self.display,tile)
+            return True     
 
     def checkShipSpacesLeft(self, init, size):
         next = (init[0],init[1])
@@ -130,10 +117,10 @@ class GameBoard:
         indicies.append(next)
         for i in range(size):
             next = (next[0]-1,next[1])
-            if self.isSpaceFree(next[0],next[1]) == None: # more pythonic to use 'is'
+            if not self.isSpaceFree(next[0],next[1]):
                 return None
             indicies.append(next)
-
+        print(indicies)
         return indicies
 
     def checkShipSpacesRight(self, init, size):
@@ -142,7 +129,7 @@ class GameBoard:
         indicies.append(next)
         for i in range(size):
             next = (next[0]+1,next[1])
-            if self.isSpaceFree(next[0],next[1]) == None:
+            if not self.isSpaceFree(next[0],next[1]):
                 return None
             indicies.append(next)
 
@@ -154,7 +141,7 @@ class GameBoard:
         indicies.append(next)
         for i in range(size):
             next = (next[0],next[1]-1)
-            if self.isSpaceFree(next[0],next[1]) == None:
+            if not self.isSpaceFree(next[0],next[1]):
                 return None
             indicies.append(next)
 
@@ -166,7 +153,7 @@ class GameBoard:
         indicies.append(next)
         for i in range(size):
             next = (next[0],next[1]+1)
-            if self.isSpaceFree(next[0],next[1]) == None:
+            if not self.isSpaceFree(next[0],next[1]):
                 return None
             indicies.append(next)
 
@@ -179,19 +166,23 @@ class GameBoard:
         return self.board[x][y]
 
     def getRandomFreeSpace(self):
-        return random.randrange(len(self.freePool))
-        # maybe remove from free space
+        return random.choice(self.freePool)
 
-    def removeSpace(self, x, y):
+    def removeSpace(self, coords):
         # o(n)
         # searches list and removes element with that value.
         # throws ValueError if the value is not found inside the list
         # add in try/catch later
-        self.freePool.remove((x,y))
+        self.freePool.remove(coords)
 
     def isSpaceFree(self, x, y):
         # ValueError to return none
-        return self.freePool.index((x,y))
+        try:
+            newID = self.freePool.index((x,y))
+        except ValueError as err:
+            print(f"{x+1,y+1} is out of bounds or taken.")
+            return False
+        return newID
 
     '''
         Expects to recieve: a ship object, an integer for the size of the ship,
@@ -199,9 +190,8 @@ class GameBoard:
     '''
     def placeShip(self, ship, size, coordinates):
         # check if the coordinates passed in are in a straight line
-        # and there are no collisions.
+        #z and there are no collisions.
         # inverted list?
-
         for coord in coordinates:
             # error check
             self.board[coord[0]][coord[1]].placeShipPiece()

@@ -22,7 +22,7 @@ GREY = (192,192,192)
 placeLocation = (0,0)
 
 gameTiles = []
-gameBoard = []
+mainBoard = []
 
 clock = pygame.time.Clock()
 
@@ -93,9 +93,9 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
             screenDisp.blit(letterSurfaceSide,(cellWidth - innerCellWidth*0.75, cellHeight + (j*innerCellHeight)+innerCellHeight*0.25))
             screenDisp.blit(letterSurfaceTop,(cellWidth + (i*innerCellWidth)+innerCellWidth*0.25, cellHeight - innerCellHeight*0.75))
 
-        gameBoard.append(rowSet)
+        mainBoard.append(rowSet)
     
-    for i in gameBoard:
+    for i in mainBoard:
         for j in i:
             pygame.draw.rect(screenDisp, RED, (j.getX(), j.getY(), innerCellWidth, innerCellHeight), 1)
             #print (j)
@@ -145,7 +145,7 @@ def game_start(screenDisp):
                 xTile = int((mouseClick[0] - cellWidth) / innerCellWidth)
                 yTile = int((mouseClick[1] - cellHeight) / innerCellHeight)
                 try:
-                    clickedTile = gameBoard[xTile][yTile]
+                    clickedTile = mainBoard[xTile][yTile]
                     print(clickedTile)
                     if ( not clickedTile.getHit()):
                         if (clickedTile.hasShip()):
@@ -172,4 +172,5 @@ def game_start(screenDisp):
 
 screen = game_setup()
 #screen = game_setup(vidInfo.current_w, vidInfo.current_h)
+compGameBoard = GameBoard(mainBoard, screen)
 game_start(screen)
