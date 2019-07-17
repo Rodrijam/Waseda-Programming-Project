@@ -141,15 +141,15 @@ def game_start(screenDisp):
                 mouseClickX = mouseClick[0] % 10
                 mouseClickY = mouseClick[1] % 10
                 clickedTile = gameBoard[mouseClickX][mouseClickY]
-                if (!clickedTile.getHit()):
+                if ( not clickedTile.getHit()):
                     if (clickedTile.hasShip()):
                         clickedTile.getShip().hit()
                         #circle(surface, color, center, radius)
                         pygame.draw.circle(screenDisp, RED, (mouseClick[0], mouseClick[1]), 1)
-                    elif:
+                    else:
                         pygame.draw.rect(screenDisp, RED, (mouseClick[0], mouseClick[1], 10,10), 1)
                     clickedTile.setHit(true)
-                    turnCounter++
+                    turnCounter += 1
                 
             #if event.type ==
             #    pygame.display.toggle_fullscreen() 

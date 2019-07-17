@@ -14,4 +14,4 @@ class Ship():
         return (size > 0)
     
     def hit(self):
-        self.size--
+        self.size -= 1

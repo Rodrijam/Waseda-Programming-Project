@@ -33,7 +33,7 @@ class Tile():
         self.ship.hit()
     
     def hasShip(self):
-        return !(self.ship is None)
+        return not(self.ship is None)
     
     def getShip(self):
         return self.ship
