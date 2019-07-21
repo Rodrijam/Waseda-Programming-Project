@@ -6,6 +6,19 @@ from shipClass import *
     Ship locations, etc.
 '''
 
+class Bullet:
+    
+    def __init__(self):
+        self.target = [0,0]
+        
+class SpBullet(Bullet):
+    
+    def __init__(self, targets):
+        Bullet.__init__()
+        #Targets = [[0,0], [0,1], [1,0], etc.]
+        self.targets = targets
+        self.targets.append(self.target)
+
 class GameBoardTile:
 
     def __init__(self, xCoord, yCoord, row, column, display):
