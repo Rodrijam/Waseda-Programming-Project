@@ -1,4 +1,5 @@
 import pygame
+import time
 from pygame.locals import *
 from shipClass import *
 from gameBoard import *
@@ -19,6 +20,8 @@ WHITE = (255,255,255)
 BLACK = (0,0,0)
 GREY = (192,192,192)
 
+debug = True;
+
 placeLocation = (0,0)
 
 gameTiles = []
@@ -27,8 +30,6 @@ mainBoard = []
 clock = pygame.time.Clock()
 
 def game_setup(screenWidth = 1200, screenHeight = 675):
-
-    debug = False;
 
     #Display Setup
     #screenDisp = pygame.display.set_mode((screenWidth,screenHeight), pygame.RESIZABLE)
@@ -52,11 +53,10 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     loadingScreen = setFont.render("Loading...", False, (0, 0, 0))
     screenDisp.blit(loadingScreen,(screenWidth/3, screenHeight/3))
     pygame.display.update()
-        
+
+    #Water Image Display      
     waterImg = pygame.image.load('sprites/watertile.jpg')
     waterImg = pygame.transform.scale(waterImg, (innerCellWidth, innerCellHeight))
-
-    #Water Image Display
     for i in range (10):
         for j in range(10):
             screenDisp.blit(waterImg, (cellWidth + (i*innerCellWidth), cellHeight + (j*innerCellHeight)))
@@ -71,26 +71,35 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     screenDisp.blit(movesRect,(innerWidth + cellWidth*1.5, cellHeight - innerCellHeight))
     screenDisp.blit(shipsRect,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight))
     screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
-    
-    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight - innerCellHeight, screenWidth - innerWidth - cellWidth*2, innerCellHeight), 1)
-    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight, screenWidth - innerWidth - cellWidth*2, innerCellHeight*6), 1)
-    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8, screenWidth - innerWidth - cellWidth*2, innerCellHeight*2), 1)
+
 
     #Moves Box
     movesText = setFont.render(" Moves: ", False, (0, 0, 0))
     movesText = pygame.transform.scale(movesText, (round(screenWidth - innerWidth - cellWidth*2)-innerCellWidth, innerCellHeight))
     screenDisp.blit(movesText,(innerWidth + cellWidth*1.5, cellHeight - innerCellHeight))
 
+    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight - innerCellHeight, screenWidth - innerWidth - cellWidth*2, innerCellHeight), 1)
+
     #Ships Remaining Box
     shipsText = setFont.render(" Ships Remaining ", False, (0, 0, 0))
     shipsText = pygame.transform.scale(shipsText, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
     screenDisp.blit(shipsText,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight))
+    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight, screenWidth - innerWidth - cellWidth*2, innerCellHeight), 1)
+
+    if debug:  
+        pygame.draw.rect(screenDisp, RED, (innerWidth + cellWidth*1.5 + (screenWidth - innerWidth - cellWidth*2), cellHeight + innerCellHeight, innerCellHeight, innerCellHeight), 1)
+    #491x84
 
     for i in range(5):             
         shipRect = pygame.Surface((screenWidth - innerWidth - cellWidth*2, innerCellHeight))
         shipRect.fill(BLACK)
         screenDisp.blit(shipRect,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+i)))
-        pygame.draw.rect(screenDisp, RED, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+i), screenWidth - innerWidth - cellWidth*2, innerCellHeight), 1)
+        sshipImg = pygame.image.load(f'sprites/sideship{i+1}IN.png')
+        sshipImg = pygame.transform.scale(sshipImg, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
+        screenDisp.blit(sshipImg, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+i)))
+        #pygame.draw.rect(screenDisp, RED, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+i), screenWidth - innerWidth - cellWidth*2, innerCellHeight), 1)
+        
+    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight, screenWidth - innerWidth - cellWidth*2, innerCellHeight*6), 1)
 
     #Powers Box
     powersText = setFont.render(" Powers ", False, (0, 0, 0))
@@ -105,12 +114,13 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
         screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))        
         pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9, seg, innerCellHeight), 1)
     
+    pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8, screenWidth - innerWidth - cellWidth*2, innerCellHeight*2), 1)
 
     #Drawing the Grid with Tiles
     for i in range (10):
         rowSet = []
         for j in range(10):
-            newTile = GameBoardTile(cellWidth + (i*innerCellWidth),cellHeight + (j*innerCellHeight),j+1,i+1)
+            newTile = GameBoardTile(cellWidth + (i*innerCellWidth),cellHeight + (j*innerCellHeight),j+1,i+1, screenDisp)
             rowSet.append(newTile)
 
           #Axis Labels
@@ -148,7 +158,7 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     return screenDisp
 
 
-def game_start(screenDisp):
+def game_start(screenDisp, compGameBoard):
 
     #NOT EFFICIENT REPEATED
     screenWidth = screenDisp.get_width()
@@ -163,10 +173,11 @@ def game_start(screenDisp):
     innerWidth = innerHeight * 1.3
     innerCellWidth = round((innerHeight*1.3)/10)
     innerCellHeight = round(innerHeight/10)
+
+    shipTest = True
     
     while True:
         turnCounter = 0
-        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -175,39 +186,75 @@ def game_start(screenDisp):
             #    game_setup(screenDisp.get_width(), screenDisp.get_height())
             elif event.type == MOUSEBUTTONDOWN:
                 mouseClick = pygame.mouse.get_pos()
-                #pygame.draw.rect(screenDisp, BLACK, (mouseClick[0], mouseClick[1], 10,10), 1)
-                gamespace = ()
-                top_left = round(cellWidth), round(cellHeight)
-                bottom_right = round(cellWidth)+innerCellWidth*10, round(cellHeight)+innerCellHeight*10
-                #First Column is 1; not 0
-                xTile = int((mouseClick[0] - cellWidth) / innerCellWidth)
-                yTile = int((mouseClick[1] - cellHeight) / innerCellHeight)
-                try:
-                    clickedTile = mainBoard[xTile][yTile]
-                    print(clickedTile)
-                    if ( not clickedTile.getHit()):
-                        if (clickedTile.hasShip()):
-                            clickedTile.getShip().hit()
-                            #circle(surface, color, center, radius)
-                            pygame.draw.circle(screenDisp, RED, (mouseClick[0], mouseClick[1]), 1)
-                        else:
-                            pygame.draw.rect(screenDisp, RED, (mouseClick[0], mouseClick[1], 10,10), 1)
-                        clickedTile.hit()
-                        turnCounter += 1
-                except:
-                    pass
-            #if event.type ==
-            #    pygame.display.toggle_fullscreen() 
-            #elif event.type == pygame.MOUSEBUTTONDOWN:
-            #    if
+                if mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
+                    try:
+                        if debug:
+                            pygame.draw.rect(screenDisp, BLACK, (mouseClick[0] - 5, mouseClick[1] - 5, 10,10), 1)
+                        gamespace = ()
+                        top_left = round(cellWidth), round(cellHeight)
+                        bottom_right = round(cellWidth)+innerCellWidth*10, round(cellHeight)+innerCellHeight*10
+                        xTile = int((mouseClick[0] - cellWidth) / innerCellWidth)
+                        yTile = int((mouseClick[1] - cellHeight) / innerCellHeight)
+                        clickedTile = mainBoard[xTile][yTile]
+                        if debug:
+                            print(clickedTile)
+                        if ( not clickedTile.isHit()):
+                            isShip, isAlive = clickedTile.fire()
+                            if isShip:
+                                if not isAlive:
+                                    if debug:
+                                        print("DEATH")
+                                    shipRect = pygame.Surface((screenWidth - innerWidth - cellWidth*2, innerCellHeight))
+                                    shipRect.fill(BLACK)
+                                    screenDisp.blit(shipRect,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+clickedTile.getShipImgNum()-1)))
+                                    sshipImg = pygame.image.load(f'sprites/sideship{clickedTile.getShipImgNum()}OUT.png')
+                                    sshipImg = pygame.transform.scale(sshipImg, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
+                                    screenDisp.blit(sshipImg, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+clickedTile.getShipImgNum()-1)))
+                                    compGameBoard.shipLoss()
+                            turnCounter += 1
+                    except IndexError:
+                        pass
+                    
+                #Destruction testing
+                if debug:
+                    if mouseClick[0] > innerWidth + cellWidth*1.5 + (screenWidth - innerWidth - cellWidth*2) and \
+                       mouseClick[0] < innerWidth + cellWidth*1.5 + (screenWidth - innerWidth - cellWidth*2) + innerCellHeight and \
+                       mouseClick[1] > cellHeight + innerCellHeight and mouseClick[1] < cellHeight + innerCellHeight*2:
+                        print("INSTANT DEATH")
+                        for i in range (compGameBoard.shipsLeft):
+                            compGameBoard.shipLoss()
 
- 
+        #Check here for end of game...                   
+        if compGameBoard.checkWin():
+            pygame.display.update()
+            for i in [3,2,1]:
+                time.sleep(1)
+                numFill = pygame.Surface((innerCellWidth, innerCellHeight*2.1))
+                numFill.fill(WHITE)
+                screenDisp.blit(numFill, (screenWidth/3.05, screenHeight/2.8))
+                endScreen = setFont.render(f"{i}", False, (0, 0, 0))
+                screenDisp.blit(endScreen,(screenWidth/3, screenHeight/3))
+                pygame.display.update()
+            time.sleep(1)
+            pygame.display.update()
+            return
+
+                
+
         pygame.display.update()
 
 
+def game_end(screenDisp):
+    screenWidth = screenDisp.get_width()
+    screenHeight = screenDisp.get_height()
+    screenDisp.fill(WHITE)
+    endScreen = setFont.render("Yay you win...", False, (0, 0, 0))
+    screenDisp.blit(endScreen,(screenWidth/4, screenHeight/3))
+    pygame.display.update()
 
 
 screen = game_setup()
 #screen = game_setup(vidInfo.current_w, vidInfo.current_h)
-compGameBoard = GameBoard(mainBoard, screen)
-game_start(screen)
+compGameBoard = GameBoard(mainBoard)
+game_start(screen, compGameBoard)
+game_end(screen)
