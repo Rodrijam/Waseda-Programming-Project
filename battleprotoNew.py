@@ -186,6 +186,20 @@ def game_start(screenDisp, compGameBoard):
             #    game_setup(screenDisp.get_width(), screenDisp.get_height())
             elif event.type == MOUSEBUTTONDOWN:
                 mouseClick = pygame.mouse.get_pos()
+                
+                #Check for powerUp Click
+                #if within range of powerup
+                    #if specialBulletTile.isActive and specialBullet !=  specialBulletTile.spBullet:
+                        #specialBullet.tileActive = False
+                        #specialBullet = specialBulletTile.spBullet
+                        #specialBullet.tileActive = True
+                    #elif specialBulletTile.isActive and specialBullet =  specialBulletTile.spBullet:
+                        #specialBulletTile.isActive = False
+                        #specialBullet = None
+                    #elif not specialBulletTile.isActive:
+                        #specialBullet = specialBulletTile.spBullet
+                        #specialBullet.tileActive = True
+                #Else
                 if mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
                     try:
                         if debug:
@@ -199,7 +213,11 @@ def game_start(screenDisp, compGameBoard):
                         if debug:
                             print(clickedTile)
                         if ( not clickedTile.isHit()):
-                            isShip, isAlive = clickedTile.fire()
+                            if specialBullet != None:
+                                for target in specialBullet.targets:
+                                    isShip, isAlive = mainBoard[xTile + target[0]][yTile + target[1]].fire()
+                            else:
+                                isShip, isAlive = clickedTile.fire()
                             if isShip:
                                 if not isAlive:
                                     if debug:
