@@ -2,3 +2,7 @@ Name: XYZ Score: 17 Grade:A
 Name: XYZ Score: 28 Grade:D
 Name: XYZ Score: 17 Grade:A
 Name: XYZ Score: 100 Grade:D
+Name: XYZ Score: 34 Grade:D
+Name: XYZ Score: 17 Grade:A
+Name: XYZ Score: 19 Grade:C Powers Used:4
+Name: XYZ Score: 16 Grade:A Powers Used:1

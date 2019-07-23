@@ -28,6 +28,8 @@ placeLocation = (0,0)
 gameTiles = []
 mainBoard = []
 
+powerList = [1,2,3,4]
+
 clock = pygame.time.Clock()
 
 def game_setup(screenWidth = 1200, screenHeight = 675):
@@ -107,11 +109,6 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     powersText = pygame.transform.scale(powersText, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
     screenDisp.blit(powersText,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
     
-    #PowerSetUp
-    XPowerUp = SpBullet([[-1, -1], [1, -1], [-1, 1], [1,1]])
-    CrossPowerUp = SpBullet([[-1, 0], [0, -1], [0, 1], [0, 2], [1, 0]])
-    SideLPowerUp = SpBullet([0, 1], [1, 0], [2, 0])
-    JPowerUp = SpBullet([-1, 0], [0, 1], [0, 2])
 
     seg = (screenWidth - innerWidth - cellWidth*2) / 4
 
@@ -165,28 +162,34 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
 
     return screenDisp
 
+def clearPower(screenDisp): 
+
+     #redraw power boxes (not efficient)
+    powerRect = pygame.Surface((screenWidth - innerWidth - cellWidth*2, innerCellHeight*2))
+    powerRect.fill(GREY)
+    screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
+    powersText = setFont.render(" Powers ", False, (0, 0, 0))
+    powersText = pygame.transform.scale(powersText, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
+    screenDisp.blit(powersText,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
+    for i in range(4):
+        powerImg = pygame.image.load(f'sprites/power{i+1}.png')
+        powerImg = pygame.transform.scale(powerImg, (round(seg), innerCellHeight))
+        screenDisp.blit(powerImg,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
+        pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9, seg, innerCellHeight), 1)
+
 def game_start(screenDisp, compGameBoard):
 
-    #NOT EFFICIENT REPEATED
-    screenWidth = screenDisp.get_width()
-    screenHeight = screenDisp.get_height()
+    #PowerSetUp
 
-    #Buffer Cells
-    cellWidth = round(screenWidth/10)
-    cellHeight = round(screenHeight/10)
-
-    #True Cells
-    innerHeight = screenHeight - (2*cellHeight)
-    innerWidth = innerHeight * 1.3
-    innerCellWidth = round((innerHeight*1.3)/10)
-    innerCellHeight = round(innerHeight/10)
-
-    seg = (screenWidth - innerWidth - cellWidth*2) / 4
+    XPowerUp = SpBullet([[-1, -1], [1, -1], [-1, 1], [1,1]])
+    CrossPowerUp = SpBullet([[-1, 0], [0, -1], [0, 1], [0, 2], [1, 0]])
+    SideLPowerUp = SpBullet([[0, 1], [1, 0], [2, 0]])
+    JPowerUp = SpBullet([[-1, 0], [0, 1], [0, 2]])
 
     shipTest = True
     turnCounter = 0
     activePower = 0
-    redraw = True
+    specialBullet = None
     
     while True:
         for event in pygame.event.get():
@@ -197,39 +200,38 @@ def game_start(screenDisp, compGameBoard):
             #    game_setup(screenDisp.get_width(), screenDisp.get_height())
             elif event.type == MOUSEBUTTONDOWN:
                 mouseClick = pygame.mouse.get_pos()
-<<<<<<< HEAD
-                if mouseClick[0] > innerWidth + cellWidth*1.5 and mouseClick[0] < innerWidth + cellWidth*1.5 + seg*4 and \
-                   mouseClick[1] > cellHeight + innerCellHeight*9 and mouseClick[1] < cellHeight + innerCellHeight*9 + innerCellHeight:
-                    if mouseClick[0] < innerWidth + cellWidth*1.5 + seg:
+                if (mouseClick[0] > innerWidth + cellWidth*1.5 and mouseClick[0] < innerWidth + cellWidth*1.5 + seg*4 and \
+                   mouseClick[1] > cellHeight + innerCellHeight*9 and mouseClick[1] < cellHeight + innerCellHeight*9 + innerCellHeight):
+                    clearPower(screenDisp)
+                    if mouseClick[0] < innerWidth + cellWidth*1.5 + seg and 1 in powerList:
                         if activePower != 1:
                             #activate power 1 
-                            redraw = True
                             activePower = 1
-                            #currentPower = specialBullet()
+                            specialBullet = XPowerUp 
                         else:
                             activePower = 0
 
-                    elif mouseClick[0] < innerWidth + cellWidth*1.5 + seg*2 and mouseClick[0] > innerWidth + cellWidth*1.5 + seg:
+                    elif mouseClick[0] < innerWidth + cellWidth*1.5 + seg*2 and mouseClick[0] > innerWidth + cellWidth*1.5 + seg and 2 in powerList:
                         if activePower != 2:
                             #activate power 2
-                            redraw = True
                             activePower = 2
+                            specialBullet = CrossPowerUp 
                         else:
                             activePower = 0
 
-                    elif mouseClick[0] < innerWidth + cellWidth*1.5 + seg*3 and mouseClick[0] > innerWidth + cellWidth*1.5 + seg*2:
+                    elif mouseClick[0] < innerWidth + cellWidth*1.5 + seg*3 and mouseClick[0] > innerWidth + cellWidth*1.5 + seg*2 and 3 in powerList:
                         if activePower !=3:
                             #activate power 3
-                            redraw = True
                             activePower = 3
+                            specialBullet = SideLPowerUp
                         else:
                             activePower = 0
 
-                    elif mouseClick[0] > innerWidth + cellWidth*1.5 + seg*3:
+                    elif mouseClick[0] > innerWidth + cellWidth*1.5 + seg*3 and 4 in powerList:
                         if activePower != 4:
                             #activate power 4
-                            redraw = True
                             activePower = 4
+                            specialBullet = JPowerUp 
                         else:
                             activePower = 0
                             
@@ -237,49 +239,17 @@ def game_start(screenDisp, compGameBoard):
                         print("Power Error")
                     if debug:
                         print(f"Using Power: {activePower}")
+                        
+                    if activePower == 0:
+                        clearPower(screenDisp)
+                        specialBullet = None
 
-                    if activePower == 0 or redraw:
-                     #redraw power boxes (not efficient)
-                        powerRect = pygame.Surface((screenWidth - innerWidth - cellWidth*2, innerCellHeight*2))
-                        powerRect.fill(GREY)
-                        screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
-                        powersText = setFont.render(" Powers ", False, (0, 0, 0))
-                        powersText = pygame.transform.scale(powersText, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
-                        screenDisp.blit(powersText,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
-                        for i in range(4):
-                            powerImg = pygame.image.load(f'sprites/power{i+1}.png')
-                            powerImg = pygame.transform.scale(powerImg, (round(seg), innerCellHeight))
-                            screenDisp.blit(powerImg,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
-                            pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9, seg, innerCellHeight), 1)
-                        redraw = False
                     if activePower != 0:
                         selectRect = pygame.Surface((seg, innerCellHeight))
                         selectRect.fill(YELLOW)
                         selectRect.set_alpha(128)
                         screenDisp.blit(selectRect,(innerWidth + cellWidth*1.5 + seg*(activePower-1), cellHeight + innerCellHeight*9))
-
-                    
-                    #powerRect = pygame.Surface((cellseg, innerCellHeight))
-                    #powerRect.fill(RED)
-                    #screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
-                
-                        #Check for powerUp Click
-                        #if within range of powerup
-                            #if specialBulletTile.isActive and specialBullet !=  specialBulletTile.spBullet:
-                                #specialBullet.tileActive = False
-                                #specialBullet = specialBulletTile.spBullet
-                                #specialBullet.tileActive = True
-                            #elif specialBulletTile.isActive and specialBullet =  specialBulletTile.spBullet:
-                                #specialBulletTile.isActive = False
-                                #specialBullet = None
-                            #elif not specialBulletTile.isActive:
-                                #specialBullet = specialBulletTile.spBullet
-                                #specialBullet.tileActive = True
-                        #Else
                 elif mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
-=======
-                if mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
->>>>>>> adaf63969a547e9b8ceb88dca116bc60e5b9e218
                     try:
                         if debug:
                             pygame.draw.rect(screenDisp, BLACK, (mouseClick[0] - 5, mouseClick[1] - 5, 10,10), 1)
@@ -292,12 +262,16 @@ def game_start(screenDisp, compGameBoard):
                         if debug:
                             print(clickedTile)
                         if ( not clickedTile.isHit()):
-                            specialBullet = None #temp
                             print(activePower)
                             if specialBullet != None:
                                 for target in specialBullet.targets:
                                     if (xTile + target[0] >= 0 and xTile + target[0] < 10 and yTile + target[1] >= 0 and yTile + target[1] < 10):
                                         isShip, isAlive = mainBoard[xTile + target[0]][yTile + target[1]].fire()
+                                print(activePower)
+                                powerList.remove(activePower)
+                                activePower = 0
+                                specialBullet = None
+                                clearPower(screenDisp)
                             else:
                                 isShip, isAlive = clickedTile.fire()
                             if isShip:
@@ -380,12 +354,33 @@ def save_to_file(turnCounter):
     }
     grade = int((17 / turnCounter) * 10)
     print(grade)
-    file.write(f"Name: XYZ Score: {turnCounter} Grade:{scoreTable[grade]}\n")
+    file.write(f"Name: XYZ Score: {turnCounter} Grade:{scoreTable[grade]} Powers Used:{4-len(powerList)}\n")
     file.close()
 
 screen = game_setup()
+
+screenWidth = screen.get_width()
+screenHeight = screen.get_height()
+
+#Buffer Cells
+cellWidth = round(screenWidth/10)
+cellHeight = round(screenHeight/10)
+
+#True Cells
+innerHeight = screenHeight - (2*cellHeight)
+innerWidth = innerHeight * 1.3
+innerCellWidth = round((innerHeight*1.3)/10)
+innerCellHeight = round(innerHeight/10)
+
+seg = (screenWidth - innerWidth - cellWidth*2) / 4  
+
+
 #screen = game_setup(vidInfo.current_w, vidInfo.current_h)
 compGameBoard = GameBoard(mainBoard)
 score = game_start(screen, compGameBoard)
 game_end(screen, score)
 save_to_file(score)
+while True:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()

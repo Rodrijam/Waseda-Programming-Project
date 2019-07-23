@@ -14,7 +14,7 @@ class Bullet:
 class SpBullet(Bullet):
     
     def __init__(self, targets):
-        Bullet.__init__()
+        Bullet.__init__(self)
         #Targets = [[0,0], [0,1], [1,0], etc.]
         self.targets = targets
         self.targets.append(self.target)
