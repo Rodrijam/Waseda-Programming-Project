@@ -1,11 +1,10 @@
 import random
 from shipClass import *
 
-'''
-    This class will track information about the game state.
-    Ship locations, etc.
-'''
-
+"""
+Class for Bullet & Special Bullet objects
+by Chun Tat Chan
+"""
 class Bullet:
     
     def __init__(self):
@@ -19,16 +18,20 @@ class SpBullet(Bullet):
         self.targets = targets
         self.targets.append(self.target)
 
+"""
+Class for GameBoardTile
+by Ryan Yu & James Rodriguez
+"""
 class GameBoardTile:
 
     def __init__(self, xCoord, yCoord, row, column, display):
-        self.debug_mode = True
-        self.x = xCoord
-        self.y = yCoord
-        self.row = row      #row the tile in in
-        self.col = column   #column the tile is in
+        self.debug_mode = False
+        self.__x = xCoord
+        self.__y = yCoord
+        self.__row = row      #row the tile in in
+        self.__col = column   #column the tile is in
         self.ship = False   #boolean for if there is a ship piece
-        self.hit = False    #boolean for if this space has already been hit
+        self.__hit = False    #boolean for if this space has already been hit
         self.shipReference = None
         self.display = display
         self.displayW, self.displayH = display.get_size()
@@ -37,16 +40,16 @@ class GameBoardTile:
         return f"X:{self.x} Y:{self.y} Column:{self.col} Row:{self.row} "
 
     def getX(self):
-        return self.x
+        return self.__x
 
     def getY(self):
-        return self.y
+        return self.__y
 
     def getRow(self):
-        return self.row
+        return self.__row
 
     def getCol(self):
-        return self.col
+        return self.__col
 
     def setShipReference(self, ship):
         if self.shipReference == None:
@@ -62,20 +65,17 @@ class GameBoardTile:
             self.ship = True
             if self.debug_mode:
                 print(f"Placing {ship} on tile {self.row}, {self.col}")
-                cell = (round(self.displayW/10)+((self.col-1)*(round((4*self.displayH*1.3)/50))), round(self.displayH/10)+((self.row-1)*(round((4*self.displayH)/50))))
+                cell = (round(self.displayW/10)+((self.__col-1)*(round((4*self.displayH*1.3)/50))), round(self.displayH/10)+((self.__row-1)*(round((4*self.displayH)/50))))
                 self.display.blit(self.getImg(ship.getSize()), cell)
             return True
         return False
         
-    '''
-        draws a hit mark on the game screen?
-    '''
     def isHit(self):
-        return self.hit
+        return self.__hit
     
     def fire(self):
-        self.hit = True
-        cell = (round(self.displayW/10)+((self.col-1)*(round((4*self.displayH*1.3)/50))), round(self.displayH/10)+((self.row-1)*(round((4*self.displayH)/50))))
+        self.__hit = True
+        cell = (round(self.displayW/10)+((self.__col-1)*(round((4*self.displayH*1.3)/50))), round(self.displayH/10)+((self.__row-1)*(round((4*self.displayH)/50))))
         if self.ship:
             self.display.blit(self.getImg("hit"), cell)
             self.shipReference.hit()
@@ -91,11 +91,14 @@ class GameBoardTile:
     def getShipImgNum(self):
         return self.shipReference.getImgNum()
 
+"""
+Class for GameBoard Object
+by Ryan Yu
+"""
 class GameBoard:
 
     def __init__(self, mainboard):
-        # initially 10 x 10 grid, based on grid drawn in 'battleprotoNew.py'
-        self.debug = True
+        self.debug = False
         self.board = mainboard
         self.shipCount = 5
         self.shipsLeft = 5
@@ -186,9 +189,6 @@ class GameBoard:
 
         return indicies
 
-    '''
-        Check the status of grid space x,y. returns
-    '''
     def checkSpace(self, x, y):
         return self.board[x][y]
 
@@ -196,14 +196,9 @@ class GameBoard:
         return random.choice(self.freePool)
 
     def removeSpace(self, coords):
-        # o(n)
-        # searches list and removes element with that value.
-        # throws ValueError if the value is not found inside the list
-        # add in try/catch later
         self.freePool.remove(coords)
 
     def isSpaceFree(self, x, y):
-        # ValueError to return none
         try:
             newID = self.freePool.index((x,y))
         except ValueError as err:
@@ -211,17 +206,8 @@ class GameBoard:
                 print(f"{y+1,x+1} is out of bounds or taken.")
             return False
         return newID
-
-    '''
-        Expects to recieve: a ship object, an integer for the size of the ship,
-        and an array of touples? representing the corrdinates of where the ship is placed.
-    '''
     def placeShip(self, ship, size, coordinates):
-        # check if the coordinates passed in are in a straight line
-        #z and there are no collisions.
-        # inverted list?
         for coord in coordinates:
-            # error check
             self.board[coord[0]][coord[1]].placeShipPiece()
             
     def shipLoss(self):

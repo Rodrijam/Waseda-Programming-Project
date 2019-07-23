@@ -1,3 +1,7 @@
+"""
+Class for Ship object by Chun Tat Chan
+"""
+
 import pygame
 
 class Ship:
