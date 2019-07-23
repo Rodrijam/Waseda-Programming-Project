@@ -13,12 +13,11 @@ class Bullet:
         
 class SpBullet(Bullet):
     
-    def __init__(self, targets, tile):
+    def __init__(self, targets):
         Bullet.__init__()
         #Targets = [[0,0], [0,1], [1,0], etc.]
         self.targets = targets
         self.targets.append(self.target)
-        self.tile = tile
 
 class GameBoardTile:
 
@@ -91,21 +90,6 @@ class GameBoardTile:
 
     def getShipImgNum(self):
         return self.shipReference.getImgNum()
-    
-class spTile(GameBoardTile):
-    
-    def __init__(self, display):
-        self.spBullet = None
-        self.display = display
-        self.displayW, self.displayH = display.get_size()
-        self.tileActive = False
-        
-    def setBullet(self, spBullet):
-        self.spBullet = spBullet
-        
-    def setActive(self, isActive):
-        self.tileActive = isActive
-        
 
 class GameBoard:
 
