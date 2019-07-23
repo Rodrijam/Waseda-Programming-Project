@@ -198,6 +198,7 @@ def game_start(screenDisp, compGameBoard):
                             #activate power 1 
                             redraw = True
                             activePower = 1
+                            #currentPower = specialBullet()
                         else:
                             activePower = 0
 
