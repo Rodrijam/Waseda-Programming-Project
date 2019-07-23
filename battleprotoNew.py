@@ -105,6 +105,12 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     powersText = setFont.render(" Powers ", False, (0, 0, 0))
     powersText = pygame.transform.scale(powersText, (round(screenWidth - innerWidth - cellWidth*2), innerCellHeight))
     screenDisp.blit(powersText,(innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8))
+    
+    #PowerSetUp
+    XPowerUp = SpBullet([[-1, -1], [1, -1], [-1, 1], [1,1]])
+    CrossPowerUp = SpBullet([[-1, 0], [0, -1], [0, 1], [0, 2], [1, 0]])
+    SideLPowerUp = SpBullet([0, 1], [1, 0], [2, 0])
+    JPowerUp = SpBullet([-1, 0], [0, 1], [0, 2])
 
     seg = (screenWidth - innerWidth - cellWidth*2) / 4
 
@@ -186,20 +192,6 @@ def game_start(screenDisp, compGameBoard):
             #    game_setup(screenDisp.get_width(), screenDisp.get_height())
             elif event.type == MOUSEBUTTONDOWN:
                 mouseClick = pygame.mouse.get_pos()
-
-                #Check for powerUp Click
-                #if within range of powerup
-                    #if specialBulletTile.isActive and specialBullet !=  specialBulletTile.spBullet:
-                        #specialBullet.tileActive = False
-                        #specialBullet = specialBulletTile.spBullet
-                        #specialBullet.tileActive = True
-                    #elif specialBulletTile.isActive and specialBullet =  specialBulletTile.spBullet:
-                        #specialBulletTile.isActive = False
-                        #specialBullet = None
-                    #elif not specialBulletTile.isActive:
-                        #specialBullet = specialBulletTile.spBullet
-                        #specialBullet.tileActive = True
-                #Else
                 if mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
                     try:
                         if debug:
@@ -215,7 +207,8 @@ def game_start(screenDisp, compGameBoard):
                         if ( not clickedTile.isHit()):
                             if specialBullet != None:
                                 for target in specialBullet.targets:
-                                    isShip, isAlive = mainBoard[xTile + target[0]][yTile + target[1]].fire()
+                                    if (xTile + target[0] >= 0 and xTile + target[0] < 10 and yTile + target[1] >= 0 and yTile + target[1] < 10):
+                                        isShip, isAlive = mainBoard[xTile + target[0]][yTile + target[1]].fire()
                             else:
                                 isShip, isAlive = clickedTile.fire()
                             if isShip:
