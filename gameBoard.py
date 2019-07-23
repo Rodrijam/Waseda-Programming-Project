@@ -18,7 +18,7 @@ class SpBullet(Bullet):
         #Targets = [[0,0], [0,1], [1,0], etc.]
         self.targets = targets
         self.targets.append(self.target)
-        self.tileActive = False
+        self.tile = tile
 
 class GameBoardTile:
 
@@ -94,11 +94,17 @@ class GameBoardTile:
     
 class spTile(GameBoardTile):
     
-    def __init__(self, display, spBullet):
-        self.spBullet = spBullet
+    def __init__(self, display):
+        self.spBullet = None
         self.display = display
         self.displayW, self.displayH = display.get_size()
-        self.isActive = False
+        self.tileActive = False
+        
+    def setBullet(self, spBullet):
+        self.spBullet = spBullet
+        
+    def setActive(self, isActive):
+        self.tileActive = isActive
         
 
 class GameBoard:
