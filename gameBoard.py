@@ -75,9 +75,9 @@ class GameBoardTile:
         return self.hit
     
     def fire(self):
+        self.hit = True
         cell = (round(self.displayW/10)+((self.col-1)*(round((4*self.displayH*1.3)/50))), round(self.displayH/10)+((self.row-1)*(round((4*self.displayH)/50))))
         if self.ship:
-            self.hit = True
             self.display.blit(self.getImg("hit"), cell)
             self.shipReference.hit()
             if self.debug_mode:

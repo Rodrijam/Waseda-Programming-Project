@@ -19,6 +19,7 @@ BLUE = (0,0,255)
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 GREY = (192,192,192)
+YELLOW = (255,255,0)
 
 debug = True;
 
@@ -74,7 +75,7 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
 
 
     #Moves Box
-    movesText = setFont.render(" Moves: ", False, (0, 0, 0))
+    movesText = setFont.render(" Moves: 0", False, (0, 0, 0))
     movesText = pygame.transform.scale(movesText, (round(screenWidth - innerWidth - cellWidth*2)-innerCellWidth, innerCellHeight))
     screenDisp.blit(movesText,(innerWidth + cellWidth*1.5, cellHeight - innerCellHeight))
 
@@ -109,10 +110,18 @@ def game_setup(screenWidth = 1200, screenHeight = 675):
     seg = (screenWidth - innerWidth - cellWidth*2) / 4
 
     for i in range(4):
-        powerRect = pygame.Surface((seg, innerCellHeight))
-        powerRect.fill(RED)
-        screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
+        #powerRect = pygame.Surface((seg, innerCellHeight))
+        #powerRect.fill(RED)
+        #screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
+        powerImg = pygame.image.load(f'sprites/power{i+1}.png')
+        powerImg = pygame.transform.scale(powerImg, (round(seg), innerCellHeight))
+        screenDisp.blit(powerImg,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
+        selectRect = pygame.Surface((seg, innerCellHeight))
+        selectRect.fill(YELLOW)
+        selectRect.set_alpha(128)
+        screenDisp.blit(selectRect,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
         pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9, seg, innerCellHeight), 1)
+
 
     pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8, screenWidth - innerWidth - cellWidth*2, innerCellHeight*2), 1)
 
@@ -174,9 +183,12 @@ def game_start(screenDisp, compGameBoard):
     innerCellWidth = round((innerHeight*1.3)/10)
     innerCellHeight = round(innerHeight/10)
 
+    seg = (screenWidth - innerWidth - cellWidth*2) / 4
+
     shipTest = True
     turnCounter = 0
-
+    
+    
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -186,7 +198,12 @@ def game_start(screenDisp, compGameBoard):
             #    game_setup(screenDisp.get_width(), screenDisp.get_height())
             elif event.type == MOUSEBUTTONDOWN:
                 mouseClick = pygame.mouse.get_pos()
+                if mouseClick[0] >
 
+                    #powerRect = pygame.Surface((cellseg, innerCellHeight))
+                    #powerRect.fill(RED)
+                    #screenDisp.blit(powerRect,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
+                
                 #Check for powerUp Click
                 #if within range of powerup
                     #if specialBulletTile.isActive and specialBullet !=  specialBulletTile.spBullet:
@@ -200,7 +217,7 @@ def game_start(screenDisp, compGameBoard):
                         #specialBullet = specialBulletTile.spBullet
                         #specialBullet.tileActive = True
                 #Else
-                if mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
+                else if mouseClick[0] > cellWidth and mouseClick[0] < cellWidth + innerWidth and mouseClick[1] > cellHeight and mouseClick[1] < cellHeight + innerHeight:
                     try:
                         if debug:
                             pygame.draw.rect(screenDisp, BLACK, (mouseClick[0] - 5, mouseClick[1] - 5, 10,10), 1)
@@ -213,6 +230,7 @@ def game_start(screenDisp, compGameBoard):
                         if debug:
                             print(clickedTile)
                         if ( not clickedTile.isHit()):
+                            specialBullet = None #temp
                             if specialBullet != None:
                                 for target in specialBullet.targets:
                                     isShip, isAlive = mainBoard[xTile + target[0]][yTile + target[1]].fire()
@@ -230,14 +248,12 @@ def game_start(screenDisp, compGameBoard):
                                     screenDisp.blit(sshipImg, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*(2+clickedTile.getShipImgNum()-1)))
                                     compGameBoard.shipLoss()
                             turnCounter += 1
-                            
-                            movesRect = pygame.Surface((round(screenWidth - innerWidth - cellWidth*2)-innerCellWidth, innerCellHeight))
+                            movesRect = pygame.Surface((round(innerCellWidth), innerCellHeight*0.9))
                             movesRect.fill(GREY)
-                            screenDisp.blit(movesRect,(innerWidth + cellWidth*1.5, cellHeight - innerCellHeight))
-                            pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight - innerCellHeight, screenWidth - innerWidth - cellWidth*2, innerCellHeight), 1)
-                            movesText = setFont.render(f" Moves: {turnCounter}", False, (0, 0, 0))
-                            movesText = pygame.transform.scale(movesText, (round(screenWidth - innerWidth - cellWidth*2)-innerCellWidth, innerCellHeight))
-                            screenDisp.blit(movesText,(innerWidth + cellWidth*1.5, cellHeight - innerCellHeight))
+                            screenDisp.blit(movesRect,(innerWidth + cellWidth*1.5 + innerCellWidth*2.3, cellHeight - innerCellHeight*0.9))
+                            movesText = setFont.render(f"{turnCounter}", False, (0, 0, 0))
+                            movesText = pygame.transform.scale(movesText, (round(innerCellWidth*0.7), innerCellHeight))
+                            screenDisp.blit(movesText,(innerWidth + cellWidth*1.5 + innerCellWidth*2.3, cellHeight - innerCellHeight))
                     except IndexError:
                         pass
 
@@ -254,7 +270,8 @@ def game_start(screenDisp, compGameBoard):
         if compGameBoard.checkWin():
             pygame.display.update()
             for i in [3,2,1]:
-                time.sleep(1)
+                if i != 3:
+                    time.sleep(1)
                 numFill = pygame.Surface((innerCellWidth, innerCellHeight*2.1))
                 numFill.fill(WHITE)
                 screenDisp.blit(numFill, (screenWidth/3.05, screenHeight/2.8))
@@ -263,24 +280,27 @@ def game_start(screenDisp, compGameBoard):
                 pygame.display.update()
             time.sleep(1)
             pygame.display.update()
-            save_to_file(turnCounter)
-            return
+            return turnCounter
 
 
 
         pygame.display.update()
 
 
-def game_end(screenDisp):
+def game_end(screenDisp, score):
     screenWidth = screenDisp.get_width()
     screenHeight = screenDisp.get_height()
     screenDisp.fill(WHITE)
-    endScreen = setFont.render("Yay you win...", False, (0, 0, 0))
-    screenDisp.blit(endScreen,(screenWidth/4, screenHeight/3))
+    endScreen = setFont.render("Finished!", False, (0, 0, 0))
+    screenDisp.blit(endScreen,(screenWidth/3, screenHeight/10))
+    scoreText = setFont.render(f"Your score is:", False, (0, 0, 0))
+    screenDisp.blit(scoreText,(screenWidth/4, screenHeight/3))
+    movesText = setFont.render(f"{score} Moves!", False, (0, 0, 0))
+    screenDisp.blit(movesText,(screenWidth/3, screenHeight - screenHeight*0.4))
     pygame.display.update()
 
 def save_to_file(turnCounter):
-    file = open("score.txt", "w")
+    file = open("score.txt", "a")
     scoreTable = {
         10: "A",
         9: "B",
@@ -296,11 +316,12 @@ def save_to_file(turnCounter):
     }
     grade = int((17 / turnCounter) * 10)
     print(grade)
-    file.write(f"Congratulations!\nYour Final Score Was: {turnCounter}\nYour Grade For This Game Is:{scoreTable[grade]}")
+    file.write(f"Name: XYZ Score: {turnCounter} Grade:{scoreTable[grade]}\n")
     file.close()
 
 screen = game_setup()
 #screen = game_setup(vidInfo.current_w, vidInfo.current_h)
 compGameBoard = GameBoard(mainBoard)
-game_start(screen, compGameBoard)
-game_end(screen)
+score = game_start(screen, compGameBoard)
+game_end(screen, score)
+save_to_file(score)
