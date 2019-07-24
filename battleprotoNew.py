@@ -177,7 +177,12 @@ def clearPower(screenDisp):
         screenDisp.blit(powerImg,(innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9))
         pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5 + seg*i, cellHeight + innerCellHeight*9, seg, innerCellHeight), 1)
     pygame.draw.rect(screenDisp, GREEN, (innerWidth + cellWidth*1.5, cellHeight + innerCellHeight*8, screenWidth - innerWidth - cellWidth*2, innerCellHeight*2), 1)
-
+    for j in range(4):
+        print(f"J: {j} PowerList: {powerList}")
+        if j+1 not in powerList:
+            powerImg = pygame.image.load('sprites/icon.png')
+            powerImg = pygame.transform.scale(powerImg, (round(seg), innerCellHeight))
+            screenDisp.blit(powerImg,(innerWidth + cellWidth*1.5 + seg*j, cellHeight + innerCellHeight*9))
 
 def game_start(screenDisp, compGameBoard):
 
